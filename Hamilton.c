@@ -1,0 +1,223 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include<stdbool.h>
+
+//Düðüm Oluþturma (Etiket, Aðýrlýk, Next)
+struct node
+{
+    int label;
+    int weight;
+    struct node* next;
+};
+
+//Düðümü yeniden adlandýrma
+typedef struct node Node;
+
+//Graf Yapýsý Oluþturma
+struct graph
+{
+    int num_vertices; //Köþe Sayýsý
+    Node** adj_list; //Komþuluk Listesi
+};
+
+//Grafý yeniden adlandýrma
+typedef struct graph Graph;
+
+//Yeni düðüm oluþturma
+Node* createNode(int v,int weight)
+{
+    Node* newNode = malloc(sizeof(Node));
+    newNode->label = v;
+    newNode->weight = weight;
+    newNode->next = NULL;
+    return newNode;
+}
+
+//Boþ graf oluþturma
+Graph* CreateNullGraph(int vertices)
+{
+
+    Graph* G = malloc(sizeof(Graph)); //dinamik bellekten Graf yapýsý kadar yer ayýrma
+    G->num_vertices = vertices;
+
+    G->adj_list = malloc(vertices * sizeof(Node*)); //Grafýn komþuluk matrisi = Düðümün boyutu * köþeler (Tepe) kadar bellekten yer ayýrma
+
+    int i;
+    for (i = 0; i < vertices; i++) { //tüm tepeleri gezecek for döngüsü
+        G->adj_list[i] = NULL; //boþ graf olduðu için komþuluk matrisi Boþ
+    }
+    return G;
+}
+
+//Düðümlerin arasýndaki kenarlarýn oluþturulmasý
+void add_edge(Graph* G, int src, int dest,int directed, int weight) //kaynaktan hedefe, yönlü-yönsüz ve aðýrlýklý düðümlere kenar ekleme
+{
+    if(directed==0)
+        weight=1;
+    Node* newNode = createNode(dest,weight);
+    newNode->next = G->adj_list[src];
+    G->adj_list[src] = newNode;
+
+    if(!directed)
+    {
+        Node* srcNode = createNode(src,weight);
+        srcNode->next = G->adj_list[dest];
+        G->adj_list[dest] = srcNode;
+    }
+}
+
+//Grafý ekrana yazdýrma
+void printGraph(Graph* G)
+{
+    int v;
+    for (v = 0; v < G->num_vertices; v++)
+    {
+        Node* temp = G->adj_list[v];
+        printf("%d = ", v);
+        while (temp)
+        {
+            printf("%d -> ", temp->label);
+            temp = temp->next;
+        }
+        printf("\n");
+    }
+}
+
+//Dereceleri yazdýrma
+void printDegrees(Graph* G)
+{
+    int v;
+    for (v = 0; v < G->num_vertices; v++)
+    {
+        int d =0;
+        Node* temp = G->adj_list[v];
+        printf("Dugumun derecesi %d = ", v);
+        while (temp)
+        {
+            d++;
+            temp = temp->next;
+        }
+        printf("%d\n",d);
+    }
+}
+//Komþu olup olmadýðýný kontrol eden fonksiyon
+int isNeighbor(Graph* G, int src, int dest) //Graf, kaynak, hedef
+{
+    Node* tempList= G->adj_list[src];
+    while(tempList != NULL)
+    {
+        if(tempList->label == dest)
+            return tempList->weight;
+        tempList=tempList->next;
+
+    }
+    return 0;
+}
+
+//Komþuluk matrisini yazdýrma
+void AdjMatris(Graph* G)
+{
+    int i,j;
+    FILE *fp = fopen("output.txt","w"); //output.txt dosyasý "yazma" modunda açýlýr
+    for(i=0;i<G->num_vertices;i++) //tüm köþeler bitene kadar gezilecek
+    {
+        for(j=0;j<G->num_vertices;j++)
+        {
+            fprintf(fp,"%d ",isNeighbor(G,i,j)); //dosyaya komþularýný yazdýrma
+        }
+        fprintf(fp,"\n");
+    }
+    fclose(fp); //dosyayý kapatma
+}
+
+//Yol güvenilir mi
+bool isSafe(int v, Graph* G, int path[], int pos)
+{
+    int i;
+    if (!isNeighbor(G,path[pos - 1],v))
+        return false;
+
+    for ( i= 0; i < pos; i++)
+        if (path[i] == v)
+            return false;
+
+    return true;
+}
+
+//Hamilton Recursive Fonksiyon
+bool HamiltonRec(Graph* G,int path[], int pos)
+{
+    //Tüm dügümler eklendiyse
+    if (pos == G->num_vertices)
+    {
+        return true;
+        if (isNeighbor(G,path[pos - 1],path[0]))
+            return true;
+        else
+            return false;
+    }
+    int v;
+    for ( v= 1; v < G->num_vertices; v++)
+    {
+        if (isSafe(v, G, path, pos))
+        {
+            path[pos] = v;
+            if (HamiltonRec (G, path, pos + 1) == true)
+                return true;
+            path[pos] = -1;
+        }
+    }
+    return false;
+}
+
+//Bulunan çözümü yazdýrma
+void printSolution(int path[],Graph* G)
+{
+    int i;
+    for(i= 0; i <G->num_vertices ; i++)
+        printf("%d -> ", path[i]);
+    //printf("%d -> ", path[0]);
+}
+
+//Hamilton Grafý olup olmadýðý kontrol eden fonksiyon
+bool HamiltonCycle(Graph* G)
+{
+    int i;
+    int path[G->num_vertices];
+
+    for (i= 0; i < G->num_vertices; i++)
+        path[i] = -1;
+
+    path[0] = 0;
+
+    if (HamiltonRec(G, path, 1) == false )
+    {
+        printf("\nCozum bulunamadi");
+        return false;
+    }
+    else
+    {
+        printSolution(path,G);
+    }
+    return true;
+}
+
+//Ana menü
+int main()
+{
+    int noV=5; //Tepe Sayýsý
+    Graph* G=CreateNullGraph(noV); //Tepe sayýsý kadar düðüm olan boþ graf oluþturma
+    //Kenar ekleme
+    add_edge(G,0,4,0,0);
+    add_edge(G,0,2,0,0);
+    add_edge(G,4,2,0,0);
+    add_edge(G,2,1,0,0);
+    add_edge(G,2,3,0,0);
+    add_edge(G,1,3,0,0);
+    add_edge(G,0,3,0,0);
+    //Hamilton Grafý
+    HamiltonCycle(G);
+    return 0;
+}
+
