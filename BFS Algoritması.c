@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include<stdbool.h>
+//Düðüm yapýsý oluþturma
 struct node
 {
     int label;
@@ -276,8 +277,6 @@ bool isSafe(int v, Graph* G, int path[], int pos)
 
 
 
-
-
 bool HamiltonRec(Graph* G,int path[], int pos)
 {
     //Tüm düðümler eklendiyse
@@ -332,7 +331,6 @@ bool HamiltonCycle(Graph* G)
 
     return true;
 }
-
 void BFS(Graph* G, int vertex, int visited[], int distance[])
 {
     visited[vertex] = 1;
@@ -340,14 +338,14 @@ void BFS(Graph* G, int vertex, int visited[], int distance[])
     int sayac = 0;
     while(sayac <= G->num_vertices)
     {
-        printf("v: %d \n",vertex);
+        //printf("Tepe : %d \n",vertex);
         Node* tmp = G->adj_list[vertex];
         while(tmp != NULL)
         {
             //printf("eklenen: %d \n",tmp->label);
-            if(visited[tmp->label]==0 && listedevarmi(komsular,tmp->label)==0)
+            if(visited[tmp->label]==0 && listedevarmi(komsular,tmp->label)==0) //tmp degiskeni ziyaret edildi mi & komsuluk listesinde var mý
             {
-                //printf("eklenen: %d \n",tmp->label);
+                printf("eklenen: %d \n",tmp->label);
                 Node* newNode = malloc(sizeof(Node));
                 newNode->label = tmp->label;
                 newNode->next = komsular;
@@ -357,7 +355,6 @@ void BFS(Graph* G, int vertex, int visited[], int distance[])
             tmp = tmp->next;
         }
 
-
         Node* k = komsular;
         while(k != NULL)
         {
@@ -366,23 +363,27 @@ void BFS(Graph* G, int vertex, int visited[], int distance[])
         }
          printf("\n");
 
-
-        if(komsular != NULL)
+        if(komsular != NULL) //komsu bulunmayýncaya dek;
         {
-            Node* temp = komsular;
+            Node* temp = komsular; //temp degiskeni olusturuldu
             while(temp->next != NULL) temp = temp->next;
             visited[temp->label] = 1;
             vertex=temp->label;
-
-
-
-            Node* son = komsular;
-            while(son->next->label != temp->label)
-                    son=son->next;
-            son->next=NULL;
-
-             if(komsular->label == temp->label)
+            if(komsular->label == temp->label)
                 komsular=NULL;
+            else
+            {
+                Node* son = komsular;
+                while(komsular->next->label != temp->label)
+                {
+                	komsular=komsular->next;
+				}
+                        
+                komsular->next = NULL;
+
+                komsular=son;
+            }
+
         }
         sayac ++;
     }
@@ -408,14 +409,13 @@ int main()
         visited[i]=0;
         distance[i]=0;
     }
-  	BFS(G,0,visited,distance);
-    for(i=0;i<G->num_vertices;i++)
+  	BFS(G,0,visited,distance); // BFS fonksiyonuna G grafý,ziyaret_edilen ve mesafe gönderilsin, 0 ile baþlansýn
+	for(i=0;i<G->num_vertices;i++)
     {
-        //printf("%d -> %d  \n",0,i);
+        //shortest-path bulunmasý (mesafe)
+		//printf("%d -> %d = %d \n",0,i,distance[i]);
     }
     AdjMatris(G);
-    //HamiltonCycle(G);
-    //printf("W(H) = %d",PrimsAlgorithm(G));
 
     return 0;
 }

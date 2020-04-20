@@ -2,22 +2,29 @@
 #include <stdlib.h>
 #include <limits.h>
 #include<stdbool.h>
+
+//Düðüm Oluþturma (Etiket, Aðýrlýk, Next)
 struct node
 {
     int label;
     int weight;
     struct node* next;
 };
+
+//Düðümü yeniden adlandýrma
 typedef struct node Node;
 
+//Graf Yapýsý Oluþturma
 struct graph
 {
-    int num_vertices;
-    Node** adj_list;
+    int num_vertices; //Köþe Sayýsý
+    Node** adj_list; //Komþuluk Listesi
 };
 
+//Grafý yeniden adlandýrma
 typedef struct graph Graph;
 
+//Yeni düðüm oluþturma
 Node* createNode(int v,int weight)
 {
     Node* newNode = malloc(sizeof(Node));
@@ -27,23 +34,24 @@ Node* createNode(int v,int weight)
     return newNode;
 }
 
-
+//Boþ graf oluþturma
 Graph* CreateNullGraph(int vertices)
 {
 
-    Graph* G = malloc(sizeof(Graph));
+    Graph* G = malloc(sizeof(Graph)); //dinamik bellekten Graf yapýsý kadar yer ayýrma
     G->num_vertices = vertices;
 
-    G->adj_list = malloc(vertices * sizeof(Node*));
+    G->adj_list = malloc(vertices * sizeof(Node*)); //Grafýn komþuluk matrisi = Düðümün boyutu * köþeler (Tepe) kadar bellekten yer ayýrma
 
     int i;
-    for (i = 0; i < vertices; i++) {
-        G->adj_list[i] = NULL;
+    for (i = 0; i < vertices; i++) { //tüm tepeleri gezecek for döngüsü
+        G->adj_list[i] = NULL; //boþ graf olduðu için komþuluk matrisi Boþ
     }
     return G;
 }
 
-void add_edge(Graph* G, int src, int dest,int directed, int weight)
+//Düðümlerin arasýndaki kenarlarýn oluþturulmasý
+void add_edge(Graph* G, int src, int dest,int directed, int weight) //kaynaktan hedefe, yönlü-yönsüz ve aðýrlýklý düðümlere kenar ekleme
 {
     if(directed==0)
         weight=1;
@@ -58,6 +66,8 @@ void add_edge(Graph* G, int src, int dest,int directed, int weight)
         G->adj_list[dest] = srcNode;
     }
 }
+
+//Grafý ekrana yazdýrma
 void printGraph(Graph* G)
 {
     int v;
@@ -73,6 +83,8 @@ void printGraph(Graph* G)
         printf("\n");
     }
 }
+
+//Dereceleri yazdýrma
 void printDegrees(Graph* G)
 {
     int v;
@@ -80,7 +92,7 @@ void printDegrees(Graph* G)
     {
         int d =0;
         Node* temp = G->adj_list[v];
-        printf("degree of node %d = ", v);
+        printf("Dugumun derecesi %d = ", v);
         while (temp)
         {
             d++;
@@ -89,52 +101,8 @@ void printDegrees(Graph* G)
         printf("%d\n",d);
     }
 }
-void DFS(Graph* G, int vertex, int visited[])
-{
-    if(visited[vertex] == 0)
-    {
-        //printf("%d -> ",vertex);
-        visited[vertex] = 1;
-        Node* tmp = G->adj_list[vertex];
-        while(tmp != NULL)
-        {
-            DFS(G,tmp->label,visited);
-            tmp = tmp->next;
-        }
-    }
-}
-int ConnectedComponent(Graph* G)
-{
-    int visited[G->num_vertices];
-    int i;
-    int noc = 1;
-    int visitCounter=0;
-    for(i=0;i<G->num_vertices;i++)
-        visited[i] = 0;
-    DFS(G,0,visited);
-    for(i=0;i<G->num_vertices;i++)
-        if(visited[i] == 1)
-            visitCounter++;
-    while(visitCounter != G->num_vertices)
-    {
-        for(i=0;i<G->num_vertices;i++)
-            if(visited[i] == 0)
-            {
-                DFS(G,i,visited);
-                break;
-            }
-
-
-        visitCounter=0;
-        for(i=0;i<G->num_vertices;i++)
-        if(visited[i] == 1)
-            visitCounter++;
-        noc++;
-    }
-    printf("%d \n",noc);
-    return noc;
-}
-int isNeighbor(Graph* G, int src, int dest)
+//Komþu olup olmadýðýný kontrol eden fonksiyon
+int isNeighbor(Graph* G, int src, int dest) //Graf, kaynak, hedef
 {
     Node* tempList= G->adj_list[src];
     while(tempList != NULL)
@@ -146,109 +114,24 @@ int isNeighbor(Graph* G, int src, int dest)
     }
     return 0;
 }
+
+//Komþuluk matrisini yazdýrma
 void AdjMatris(Graph* G)
 {
     int i,j;
-    FILE *fp = fopen("output.txt","w");
-    for(i=0;i<G->num_vertices;i++)
+    FILE *fp = fopen("output.txt","w"); //output.txt dosyasý "yazma" modunda açýlýr
+    for(i=0;i<G->num_vertices;i++) //tüm köþeler bitene kadar gezilecek
     {
         for(j=0;j<G->num_vertices;j++)
         {
-            fprintf(fp,"%d ",isNeighbor(G,i,j));
+            fprintf(fp,"%d ",isNeighbor(G,i,j)); //dosyaya komþularýný yazdýrma
         }
         fprintf(fp,"\n");
     }
-    fclose(fp);
-}
-int FindMinNeigbor(Graph* G,int visited[],int *w)
-{
-    int i,minWeight=100000,minIndex;
-    for(i=0;i<G->num_vertices;i++)
-    {
-        if(visited[i])
-        {
-            Node* tmp = G->adj_list[i];
-            while(tmp)
-            {
-                if( !visited[tmp->label] && tmp->weight < minWeight)
-                {
-                    minWeight = tmp->weight;
-                    minIndex=tmp->label;
-                }
-                tmp = tmp->next;
-            }
-        }
-    }
-    *w += minWeight;
-    return minIndex;
-}
-int PrimsAlgorithm(Graph* G)
-{
-   int W = 0;
-   int i=0;
-   int vertNo = 0;
-   int visited[G->num_vertices];
-   for(i=0;i<G->num_vertices;i++)
-        visited[i]=0;
-   for(i=0;i<G->num_vertices-1;i++)
-   {
-       visited[vertNo] = 1;
-       vertNo = FindMinNeigbor(G,visited,&W);
-       printf("%d \n",W);
-   }
-   return W;
-}
-int findMinDistances(int distances[],int visited[],int m)
-{
-    int minimumDistance = INT_MAX, minIndis=-1;
-    int i;
-    for(i=0;i<m;i++)
-    {
-        if(visited[i] == 0 && distances[i] < minimumDistance)
-        {
-            minimumDistance = distances[i];
-            minIndis = i;
-        }
-    }
-    return minIndis;
-}
-void Dijkstra(Graph* G, int distances[], int parents[],int startV)
-{
-    int i,dugum = startV;
-    int visited[G->num_vertices];
-    for(i=0;i<G->num_vertices;i++)
-    {
-        distances[i]=INT_MAX; //INFINITY
-        visited[i] = 0;
-    }
-
-
-    distances[dugum]=0;
-    parents[dugum] = -1;
-    visited[dugum] = 1;
-    int numvisited=1;
-    int cost = 0;
-    while(numvisited<G->num_vertices)
-    {
-        Node* tmp = G->adj_list[dugum];
-        while(tmp != NULL)
-        {
-            if (cost + tmp->weight < distances[tmp->label])
-            {
-                distances[tmp->label] = cost + tmp->weight;
-                parents[tmp->label] = dugum;
-            }
-            tmp = tmp->next;
-        }
-        numvisited++;
-        dugum = findMinDistances(distances,visited,G->num_vertices);
-        cost = distances[dugum];
-        visited[dugum] = 1;
-    }
-
+    fclose(fp); //dosyayý kapatma
 }
 
-
+//Yol güvenilir mi
 bool isSafe(int v, Graph* G, int path[], int pos)
 {
     int i;
@@ -262,13 +145,10 @@ bool isSafe(int v, Graph* G, int path[], int pos)
     return true;
 }
 
-
-
-
-
+//Hamilton Recursive Fonksiyon
 bool HamiltonRec(Graph* G,int path[], int pos)
 {
-    //Tüm düðümler eklendiyse
+    //Tüm dügümler eklendiyse
     if (pos == G->num_vertices)
     {
         return true;
@@ -290,15 +170,17 @@ bool HamiltonRec(Graph* G,int path[], int pos)
     }
     return false;
 }
+
+//Bulunan çözümü yazdýrma
 void printSolution(int path[],Graph* G)
 {
     int i;
-    printf("Hamilton Yolu: \n");
     for(i= 0; i <G->num_vertices ; i++)
-    	
         printf("%d -> ", path[i]);
     //printf("%d -> ", path[0]);
 }
+
+//Hamilton Grafý olup olmadýðý kontrol eden fonksiyon
 bool HamiltonCycle(Graph* G)
 {
     int i;
@@ -311,17 +193,16 @@ bool HamiltonCycle(Graph* G)
 
     if (HamiltonRec(G, path, 1) == false )
     {
-        printf("\nSolution does not exist");
+        printf("\nCozum bulunamadi");
         return false;
     }
     else
     {
         printSolution(path,G);
     }
-
-
     return true;
 }
+
 int main()
 {
 	int noV=6;

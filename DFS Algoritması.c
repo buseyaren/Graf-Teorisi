@@ -91,16 +91,19 @@ void printDegrees(Graph* G)
 }
 void DFS(Graph* G, int vertex, int visited[])
 {
-    if(visited[vertex] == 0)
+    if(visited[vertex] == 0) //tepe ziyaret edilmediyse
     {
-        printf("%d -> ",vertex);
-        visited[vertex] = 1;
-        Node* tmp = G->adj_list[vertex];
-        while(tmp != NULL)
+        printf("Tepe : %d\n -> ",vertex); //tepeyi yazdýr.
+        visited[vertex] = 1; //ziyaret edilen tepeyi 1 olarak deðiþtir.
+        Node* tmp = G->adj_list[vertex]; //Grafýn komþuluk listesindeki tepeleri tmp deðiþkenine atanýyor.
+        while(tmp != NULL) //komþu bulunmayýncaya kadar;
         {
-            DFS(G,tmp->label,visited);
+        	//printf("Temp degiskeni: %d\n",tmp->label);
+            DFS(G,tmp->label,visited); //tmp deðiþkeninin etiketi Rekürsif olarak gönderildi.
             tmp = tmp->next;
+            
         }
+       
     }
 }
 int ConnectedComponent(Graph* G)
@@ -198,43 +201,6 @@ int findMinDistances(int distances[],int visited[],int m)
     return minIndis;
 }
 
-//bool isSafe(int v, Graph* G, int path[], int pos)
-//{
-//    int i;
-//    if (!isNeighbor(G,path[pos - 1],v))
-//        return false;
-//
-//    for ( i= 0; i < pos; i++)
-//        if (path[i] == v)
-//            return false;
-//
-//    return true;
-//}
-
-//bool HamiltonRec(Graph* G,int path[], int pos)
-//{
-//    //Tüm düðümler eklendiyse
-//    if (pos == G->num_vertices)
-//    {
-//        return true;
-//        if (isNeighbor(G,path[pos - 1],path[0]))
-//            return true;
-//        else
-//            return false;
-//    }
-//    int v;
-//    for ( v= 1; v < G->num_vertices; v++)
-//    {
-//        if (isSafe(v, G, path, pos))
-//        {
-//            path[pos] = v;
-//            if (HamiltonRec (G, path, pos + 1) == true)
-//                return true;
-//            path[pos] = -1;
-//        }
-//    }
-//    return false;
-//}
 void printSolution(int path[],Graph* G)
 {
     int i;
@@ -242,32 +208,10 @@ void printSolution(int path[],Graph* G)
         printf("%d -> ", path[i]);
     //printf("%d -> ", path[0]);
 }
-//bool HamiltonCycle(Graph* G)
-//{
-//    int i;
-//    int path[G->num_vertices];
-//
-//    for (i= 0; i < G->num_vertices; i++)
-//        path[i] = -1;
-//
-//    path[0] = 0;
-//
-//    if (HamiltonRec(G, path, 1) == false )
-//    {
-//        printf("\nSolution does not exist");
-//        return false;
-//    }
-//    else
-//    {
-//        printSolution(path,G);
-//    }
-//
-//
-//    return true;
-//}
+
 int main()
 {
-    int noV=6;
+    int noV=6; //(n-1)
     Graph* G=CreateNullGraph(noV);
     add_edge(G,0,1,0,0);
     add_edge(G,0,2,0,0);
@@ -281,9 +225,11 @@ int main()
     int visited[G->num_vertices];
     for(i=0;i<G->num_vertices;i++)
     {
-        visited[i]=0;
+        visited[i]=0; //false
+     	
     }
     DFS(G,0,visited);
-
+    
+  
     return 0;
 }
