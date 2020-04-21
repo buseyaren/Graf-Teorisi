@@ -228,10 +228,13 @@ int main()
 
 	for(i=0;i<G->num_vertices;i++) //tepeler ziyaret edildikçe ziyaret_edilen küme=0
 	{
-		visited[i]=0; //false
-
+		visited[i]=0;
+		 if( visited[i] == 0)
+			{
+		        DFS(G,0, visited);
+		    }
 	}
-	DFS(G,0,visited);
+	//DFS(G,0,visited);
 	//printGraph(G);
    // printDegrees(G);
    
