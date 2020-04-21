@@ -93,18 +93,20 @@ void DFS(Graph* G, int vertex, int visited[])
 {
     if(visited[vertex] == 0) //tepe ziyaret edilmediyse
     {
-        printf("Tepe : %d\n -> ",vertex); //tepeyi yazdýr.
+        printf("Tepe : %d-> \n",vertex); //tepeyi yazdýr.
         visited[vertex] = 1; //ziyaret edilen tepeyi 1 olarak deðiþtir.
-        Node* tmp = G->adj_list[vertex]; //Grafýn komþuluk listesindeki tepeleri tmp deðiþkenine atanýyor.
-        while(tmp != NULL) //komþu bulunmayýncaya kadar;
-        {
-        	//printf("Temp degiskeni: %d\n",tmp->label);
-            DFS(G,tmp->label,visited); //tmp deðiþkeninin etiketi Rekürsif olarak gönderildi.
-            tmp = tmp->next;
-            
-        }
+        Node* tmp = G->adj_list[vertex];
+		while(tmp != NULL){
+			printf("Gecici degisken - komsu: %d \n",tmp->label);
+			DFS(G,tmp->label,visited); //tmp deðiþkeninin etiketi Rekürsif olarak gönderildi.
+			//printf("Cozum baslatiliyor: \n");
+			tmp = tmp->next;
+		}
        
+		//Grafýn komþuluk listesindeki tepeleri tmp deðiþkenine atanýyor.
+      
     }
+    
 }
 int ConnectedComponent(Graph* G)
 {
@@ -205,14 +207,15 @@ void printSolution(int path[],Graph* G)
 {
     int i;
     for(i= 0; i <G->num_vertices ; i++)
-        printf("%d -> ", path[i]);
-    //printf("%d -> ", path[0]);
+        printf("%d -> \n", path[i]);
+    printf("%d -> ", path[0]);
 }
 
 int main()
 {
-    int noV=6; //(n-1)
-    Graph* G=CreateNullGraph(noV);
+    int noV=6; //(n-1) - 7 tepe için 6 vertices
+    Graph* G=CreateNullGraph(noV); //Boþ graf oluþumu
+    //Graftaki kenarlar oluþturuluyor
     add_edge(G,0,1,0,0);
     add_edge(G,0,2,0,0);
     add_edge(G,1,2,0,0);
@@ -222,14 +225,17 @@ int main()
     add_edge(G,4,5,0,0);
    	int i;
 
-    int visited[G->num_vertices];
-    for(i=0;i<G->num_vertices;i++)
-    {
-        visited[i]=0; //false
-     	
-    }
+    int visited[G->num_vertices]; //ziyaret edilenler[Grafýn_köseleri]
+
+	for(i=0;i<G->num_vertices;i++) //tepeler ziyaret edildikçe ziyaret_edilen küme=0
+	{
+		visited[i]=0; //false
+		
+	    	
+	}
     DFS(G,0,visited);
     
+
   
     return 0;
 }
