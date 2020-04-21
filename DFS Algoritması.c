@@ -101,8 +101,7 @@ void DFS(Graph* G, int vertex, int visited[])
 			DFS(G,tmp->label,visited); //tmp deðiþkeninin etiketi Rekürsif olarak gönderildi.
 			//printf("Cozum baslatiliyor: \n");
 			tmp = tmp->next;
-		}
-       
+		}       
 		//Grafýn komþuluk listesindeki tepeleri tmp deðiþkenine atanýyor.
       
     }
