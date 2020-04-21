@@ -135,25 +135,25 @@ void AdjMatris(Graph* G)
 bool isSafe(int v, Graph* G, int path[], int pos)
 {
     int i;
-    if (!isNeighbor(G,path[pos - 1],v))
+    if (!isNeighbor(G,path[pos - 1],v)) //yolun bir önceki düðümü eklemek istenen düðüm ile komsu mu
         return false;
 
-    for ( i= 0; i < pos; i++)
-        if (path[i] == v)
-            return false;
+    for ( i= 0; i < pos; i++) 
+        if (path[i] == v)//daha önce yola eklendi mi
+            return false; //yola eklenemez
 
-    return true;
+    return true; //yola eklenebilir
 }
 
 //Hamilton Recursive Fonksiyon
-bool HamiltonRec(Graph* G,int path[], int pos)
+bool HamiltonRec(Graph* G,int path[], int pos) //Rekürsif olarak her bir kombinasyon kontrol edilir
 {
     //Tüm dügümler eklendiyse
     if (pos == G->num_vertices)
     {
         return true;
-        if (isNeighbor(G,path[pos - 1],path[0]))
-            return true;
+        if (isNeighbor(G,path[pos - 1],path[0])) //en bastaki dügüm en sondaki dügüme baðlý ise
+            return true; //Hamilton turu
         else
             return false;
     }
@@ -163,7 +163,7 @@ bool HamiltonRec(Graph* G,int path[], int pos)
         if (isSafe(v, G, path, pos))
         {
             path[pos] = v;
-            if (HamiltonRec (G, path, pos + 1) == true)
+            if (HamiltonRec (G, path, pos + 1) == true) //grafa bu tepe eklenebilir mi- eger oyleyse bir sonraki elemana gec
                 return true;
             path[pos] = -1;
         }
@@ -189,18 +189,18 @@ bool HamiltonCycle(Graph* G)
     for (i= 0; i < G->num_vertices; i++)
         path[i] = -1;
 
-    path[0] = 0;
+    path[0] = 0; //yolun baþlangýcý 0 olarak seçilir
 
-    if (HamiltonRec(G, path, 1) == false )
+    if (HamiltonRec(G, path, 1) == false ) //Rekürsif olarak 
     {
         printf("\nCozum bulunamadi");
         return false;
     }
     else
     {
-        printSolution(path,G);
+        printSolution(path,G); //çözüm vardýr, ekrana yazdýrma
     }
-    return true;
+    return true; //Hamilton grafý
 }
 
 int main()
@@ -224,7 +224,7 @@ int main()
 //	add_edge(G,2,3,0,0);
 //	add_edge(G,1,3,0,0);
 
-    //AdjMatris(G);
+    AdjMatris(G); //komsuluk matrisi dosyaya yazdýrýlýyor
     HamiltonCycle(G);
 
     return 0;
