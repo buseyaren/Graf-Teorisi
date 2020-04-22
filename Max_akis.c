@@ -132,19 +132,6 @@ void AdjMatris(Graph* G)
     fclose(fp); //dosyayý kapatma
 }
 
-//Yol güvenilir mi
-bool isSafe(int v, Graph* G, int path[], int pos)
-{
-    int i;
-    if (!isNeighbor(G,path[pos - 1],v))
-        return false;
-
-    for ( i= 0; i < pos; i++)
-        if (path[i] == v)
-            return false;
-
-    return true;
-}
 
 //Bulunan çözümü yazdýrma
 void printSolution(int path[],Graph* G)
@@ -154,11 +141,110 @@ void printSolution(int path[],Graph* G)
         printf("%d -> ", path[i]);
     //printf("%d -> ", path[0]);
 }
+void BFS(Graph* G, int vertex, int visited[], int distance[])
+{
+    visited[vertex] = 1;
+    Node* komsular=NULL;
+    int sayac = 0;
+    while(sayac <= G->num_vertices)
+    {
+        //printf("Tepe : %d \n",vertex);
+        Node* tmp = G->adj_list[vertex];
+        while(tmp != NULL) //komsular bos degilse;
+        {
+            //printf("eklenen: %d \n",tmp->label);
+            if(visited[tmp->label]==0 && listedevarmi(komsular,tmp->label)==0) //tmp degiskeni ziyaret edildi mi & komsuluk listesinde var mý
+            {
+                //printf("eklenen: %d \n",tmp->label);
+                Node* newNode = malloc(sizeof(Node));
+                newNode->label = tmp->label;
+                newNode->next = komsular;
+                komsular =newNode;
+                distance[tmp->label] = distance[vertex]+1;
+            }
+            tmp = tmp->next;
+        }
 
+        Node* k = komsular;
+        while(k != NULL)
+        {
+            printf("Komsular: %d -> \n",k->label);
+            k =k->next ;
+        }
+         printf("\n");
+
+        if(komsular != NULL) //komsu bulunmayýncaya dek;
+        {
+            Node* temp = komsular; //temp degiskeni olusturuldu
+            while(temp->next != NULL) temp = temp->next;
+            //printf("Son eleman: %d\n",temp->label);
+            visited[temp->label] = 1;
+            vertex=temp->label;
+            if(komsular->label == temp->label)
+                komsular=NULL;
+            else
+            {
+                Node* son = komsular;
+                while(komsular->next->label != temp->label)
+                {
+                	komsular=komsular->next;
+				}
+                        
+                komsular->next = NULL;
+                komsular=son;
+            }
+
+        }
+        sayac ++;
+    }
+}
+
+int fordFulkersonSolution(Graph* G, int s, int t){
+	int u,v; //Ýki tepe deðiþkeni
+	int resG[V][V];
+	for (u = 0; u < Vtc; u++) {
+		for (v = 0; v < Vtc; v++) {
+			 resG[u][v] = G; 
+		}
+	}
+	
+	int parent[Vtc]; 
+	int maksimumakis = 0;
+	while (BFS(resG, s, t, parent)) //yol !=NULL
+    { 
+        // Find minimum residual capacity of the edges along the 
+        // path filled by BFS. Or we can say find the maximum flow 
+        // through the path found. 
+        int yol = INT_MAX; 
+        for (v=t; v!=s; v=parent[v]) 
+        { 
+            u = parent[Vtc]; 
+            yol = min(yol, rGraph[u][v]); 
+        } 
+  
+        // update residual capacities of the edges and reverse edges 
+        // along the path 
+        for (v=t; v != s; v=parent[v]) 
+        { 
+            u = parent[v]; 
+            resG[u][v] -= yol; 
+            resG[v][u] += yol; 
+        } 
+  
+        // Add path flow to overall flow 
+        maksimumakis += yol; 
+    } 
+  
+    return maksimumakis; 
+	
+        
+}
 //Ana menü
 int main()
 {
-    int noV=5; //Tepe Sayýsý
+    int noV=6; //Tepe Sayýsý
+    int src;
+    int trg;
     Graph* G=CreateNullGraph(noV); //Tepe sayýsý kadar düðüm olan boþ graf oluþturma
     //Kenar ekleme
     add_edge(G,0,4,0,0);
@@ -168,7 +254,6 @@ int main()
     add_edge(G,2,3,0,0);
     add_edge(G,1,3,0,0);
     add_edge(G,0,3,0,0);
-
-    //AdjMatris(G);
+	fordFulkersonSolution(G,src,trg);
     return 0;
 }
