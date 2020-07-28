@@ -91,18 +91,17 @@ void printDegrees(Graph* G)
 }
 void DFS(Graph* G, int vertex, int visited[])
 {
-    if(visited[vertex] == 0) //tepe ziyaret edilmediyse
+    if(visited[vertex] == 0) 
     {
-        printf("Tepe : %d-> \n",vertex); //tepeyi yazdýr.
-        visited[vertex] = 1; //ziyaret edilen tepeyi 1 olarak deðiþtir.
+        printf("Hill : %d-> \n",vertex); 
+        visited[vertex] = 1; 
         Node* tmp = G->adj_list[vertex];
 		while(tmp != NULL){
-			printf("Gecici degisken - komsu: %d \n",tmp->label);
-			DFS(G,tmp->label,visited); //tmp deðiþkeninin etiketi Rekürsif olarak gönderildi.
-			//printf("Cozum baslatiliyor: \n");
+			printf("Temporary variable - neighbor: %d \n",tmp->label);
+			DFS(G,tmp->label,visited); 
+			//printf("Solution is starting : \n");
 			tmp = tmp->next;
 		}       
-		//Grafýn komþuluk listesindeki tepeleri tmp deðiþkenine atanýyor.
       
     }
     
@@ -212,9 +211,8 @@ void printSolution(int path[],Graph* G)
 
 int main()
 {
-    int noV=6; //(n-1) - 7 tepe için 6 vertices
-    Graph* G=CreateNullGraph(noV); //Boþ graf oluþumu
-    //Graftaki kenarlar oluþturuluyor
+    int noV=6; //(n-1) 
+    Graph* G=CreateNullGraph(noV);
     add_edge(G,0,1,0,0);
     add_edge(G,0,2,0,0);
     add_edge(G,1,2,0,0);
@@ -224,9 +222,9 @@ int main()
     add_edge(G,4,5,0,0);
    	int i;
 
-    int visited[G->num_vertices]; //ziyaret edilenler[Grafýn_köseleri]
+    int visited[G->num_vertices];
 
-	for(i=0;i<G->num_vertices;i++) //tepeler ziyaret edildikçe ziyaret_edilen küme=0
+	for(i=0;i<G->num_vertices;i++) 
 	{
 		visited[i]=0;
 		 if( visited[i] == 0)
